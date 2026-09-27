@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+/* 브랜드 토큰 — senior-care-android/docs/android-app-spec.md 14.2 와 같은 값 */
+@theme {
+  --color-cream: #EEE8DF;
+  --color-warm-white: #F8F4EE;
+  --color-deep-ocean: #2C365A;
+  --color-beige: #C4BCB0;
+  --color-powder-blue: #DCE7F2;
+  --color-slate: #5A6075;
+  --color-brand-error: #A43A38;
+  --color-brand-success: #3E6B57;
+  --font-sans: "Pretendard Variable", Pretendard, system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+html, body, #root { min-height: 100%; }
+body { @apply bg-cream text-deep-ocean font-sans antialiased; }
+
+/* Long IDs and enlarged Korean text must wrap within the viewport. */
+#root { overflow-wrap: anywhere; }
+button, input, select { max-width: 100%; }
