@@ -1,0 +1,9 @@
+{
+  "name": "robot-sim",
+  "private": true,
+  "type": "module",
+  "description": "RPi5 텔레메트리 에이전트 없이 RTDB 에뮬레이터에 가짜 로봇 상태·이벤트를 쓰는 시뮬레이터",
+  "scripts": {
+    "start": "node sim.mjs"
+  }
+}

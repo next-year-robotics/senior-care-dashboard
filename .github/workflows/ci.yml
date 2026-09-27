@@ -1,0 +1,40 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: web/package-lock.json }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test -- --run
+      - run: npm run build
+  contracts-drift:
+    # 정본(mobile-robot)과 복사본이 어긋나면 실패. 정본 ref는 저장소 변수 CONTRACTS_REF(기본 main).
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ vars.CONTRACTS_DRIFT_SOFT == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: fetch upstream contracts
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse --branch "${{ vars.CONTRACTS_REF || 'main' }}" \
+            https://github.com/next-year-robotics/mobile-robot.git /tmp/mr
+          git -C /tmp/mr sparse-checkout set software/contracts/care-telemetry
+      - name: diff
+        run: |
+          diff -r /tmp/mr/software/contracts/care-telemetry contracts/care-telemetry
+          diff /tmp/mr/software/contracts/care-telemetry/v1/database.rules.json database.rules.json
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node -e "JSON.parse(require('fs').readFileSync('database.rules.json','utf8')); console.log('rules json ok')"
