@@ -23,6 +23,10 @@ describe('labels', () => {
     expect(missionLabel('something_new')).toBe(missionLabel('unknown'))
     expect(trackingLabel(undefined)).toBe(trackingLabel('unknown'))
   })
+  it('shows the idle tracking state from the robot contract', () => {
+    const status = fixture<RobotStatus>('status-idle-tracking-idle')
+    expect(trackingLabel(status.tracking_state)).toBe('대기 중')
+  })
 })
 
 describe('fixtures follow the contract shape', () => {

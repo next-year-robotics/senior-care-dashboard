@@ -14,7 +14,7 @@ const MISSION_KO: Record<string, string> = {
 }
 const TRACKING_KO: Record<string, string> = {
   unavailable: '추적 기능 없음', searching: '어르신을 찾는 중', following: '어르신을 따라가는 중',
-  lost: '어르신을 놓쳤어요', error: '추적 오류', unknown: '추적 상태 확인 중',
+  lost: '어르신을 놓쳤어요', idle: '대기 중', error: '추적 오류', unknown: '추적 상태 확인 중',
 }
 const BRIDGE_KO: Record<string, string> = { ready: '정상', degraded: '일부 기능 제한', error: '오류', unknown: '확인 중' }
 
