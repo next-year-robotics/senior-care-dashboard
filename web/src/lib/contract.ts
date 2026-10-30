@@ -1,7 +1,7 @@
 // care-telemetry/1 문서 타입. 정본: contracts/care-telemetry/v1/README.md (복사본). 필드 추가는 선택 필드만.
 export type BridgeState = 'ready' | 'degraded' | 'error' | 'unknown'
 export type MissionState = 'idle' | 'starting' | 'active' | 'arrived' | 'cancelling' | 'cancelled' | 'error' | 'unknown'
-export type TrackingState = 'unavailable' | 'searching' | 'following' | 'lost' | 'error' | 'unknown'
+export type TrackingState = 'unavailable' | 'searching' | 'following' | 'lost' | 'idle' | 'error' | 'unknown'
 export type Severity = 'info' | 'warning' | 'critical'
 export type EventKind =
   | 'agent.online' | 'agent.offline' | 'link.connected' | 'link.disconnected'

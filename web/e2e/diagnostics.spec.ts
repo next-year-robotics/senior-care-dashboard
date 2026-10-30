@@ -3,10 +3,17 @@ import { emulatorWrite, expectNoHorizontalOverflow, grant, login, simulator } fr
 
 test('D-12: dev diagnostic data, partial/offline states, and guardian revocation', async ({ page }) => {
   const uid = await login(page)
+  const readStatus = (path: string) => page.evaluate(async (child) => {
+    const modulePath = '/src/lib/firebase.ts'
+    const { auth } = await import(modulePath)
+    const token = await auth.currentUser.getIdToken()
+    return (await fetch(`http://127.0.0.1:9000/robots/mr-001/${child}.json?ns=senior-care-nyr-default-rtdb&auth=${token}`)).status
+  }, path)
   await emulatorWrite('robots/mr-001/sos', null)
   const sim = simulator()
   try {
     await grant(page, uid, 'dev')
+    expect(await readStatus('diag')).toBe(200)
     await page.getByRole('tab', { name: '진단', exact: true }).click()
     const panel = page.getByRole('region', { name: '개발자 진단', exact: true })
     await expect(panel.getByRole('rowheader', { name: '/base/status', exact: true })).toBeVisible()
@@ -41,6 +48,8 @@ test('D-12: dev diagnostic data, partial/offline states, and guardian revocation
     await emulatorWrite('robots/mr-001/diag', null)
     await expect(panel).toContainText('아직 진단 정보를 받지 못했어요.')
     await emulatorWrite(`access/mr-001/${uid}`, 'guardian')
+    expect(await readStatus('diag')).toBe(401)
+    expect(await readStatus('status')).toBe(200)
     await expect(page.getByRole('tab', { name: '진단', exact: true })).toHaveCount(0)
     await expect(panel).toHaveCount(0)
     await page.reload()
