@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { User } from 'firebase/auth'
+import { AppActions } from '../components/AppActions'
 import { DiagnosticsPanel } from '../components/DiagnosticsPanel'
 import { EventList } from '../components/EventList'
 import { ErrorBanner } from '../components/ErrorBanner'
@@ -42,6 +43,29 @@ function AuthorizedRobotPage({ user, role, logout, logoutError }: { user: User; 
   const sos = useActiveSos(robotId)
   const connection = useDatabaseConnection()
   const disconnected = connection.data === false && now - mountedAt >= 5000
+  // 알림을 눌러 들어오면 ?sos=<id>(새 창) 또는 서비스 워커 메시지(이미 열린 창)로 그 SOS 카드에 간다
+  const [focusSos, setFocusSos] = useState<string | null>(() => new URLSearchParams(window.location.search).get('sos'))
+  useEffect(() => {
+    const sw = navigator.serviceWorker
+    if (!sw) return
+    const onMessage = (event: MessageEvent<{ type?: string; url?: string }>) => {
+      if (event.data?.type !== 'open' || !event.data.url) return
+      setFocusSos(new URL(event.data.url).searchParams.get('sos'))
+    }
+    sw.addEventListener('message', onMessage)
+    return () => sw.removeEventListener('message', onMessage)
+  }, [])
+  const seenSos = useRef<Set<string> | null>(null)
+  useEffect(() => {
+    if (!sos.data) return
+    const ids = sos.data.map((s) => s.id)
+    // 화면을 띄워 둔 채 새 SOS가 오면 맨 위(SOS 카드)로 올린다
+    if (seenSos.current && ids.some((id) => !seenSos.current!.has(id))) window.scrollTo({ top: 0, behavior: 'smooth' })
+    seenSos.current = new Set(ids)
+  }, [sos.data])
+  useEffect(() => {
+    if (focusSos && sos.data?.some((s) => s.id === focusSos)) document.getElementById(`sos-${focusSos}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [focusSos, sos.data])
   return <main className="mx-auto max-w-3xl px-4 py-6">
     <header className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row">
       <div className="w-full min-w-0 flex-1 break-words">
@@ -52,7 +76,7 @@ function AuthorizedRobotPage({ user, role, logout, logoutError }: { user: User; 
     </header>
     <ErrorBanner errors={[meta.error, status.error, events.error, sos.error]} kind={logoutError ?? (disconnected ? 'network' : undefined)} />
     <div className="space-y-4">
-      <SosBanner sos={sos.data} now={now} />
+      <SosBanner sos={sos.data} now={now} focusId={focusSos} />
       {role === 'dev' && <div role="tablist" aria-label="화면 선택" className="flex flex-wrap gap-2" onKeyDown={(event) => {
         if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
         event.preventDefault()
@@ -65,6 +89,7 @@ function AuthorizedRobotPage({ user, role, logout, logoutError }: { user: User; 
       </div>}
       {tab === 'overview' ? <div role={role === 'dev' ? 'tabpanel' : undefined} id="panel-overview" aria-labelledby={role === 'dev' ? 'tab-overview' : undefined} className="space-y-4">
         <StatusCard status={status.data} now={now} />
+        <AppActions uid={user.uid} />
         <EventList events={events.data} now={now} />
       </div> : role === 'dev' && <div role="tabpanel" id="panel-diagnostics" aria-labelledby="tab-diagnostics"><DiagnosticsPanel robotId={robotId} status={status.data} now={now} /></div>}
     </div>

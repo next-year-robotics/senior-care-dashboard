@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { sosLocationText } from './sos'
+import { sosLocation, sosLocationText } from './sos'
 import type { ActiveSos } from './contract'
 it('keeps the SOS banner safe when coordinates are missing or invalid', () => {
   expect(sosLocationText(undefined)).toBe('위치를 아직 받지 못했어요')
@@ -12,4 +12,10 @@ it('labels cache/fresh locations in Korean and preserves low-confidence warnings
   expect(sosLocationText(location)).toContain('정확도 확인 불가')
   expect(sosLocationText(location)).toContain('신뢰도 낮음')
   expect(sosLocationText({ ...location, source: 'fresh' })).toContain('새로 확인한 위치')
+})
+it('gives map coordinates only for complete locations', () => {
+  expect(sosLocation(undefined)).toBeNull()
+  expect(sosLocation({ lat: 37.2, lon: 200 } as ActiveSos['location'])).toBeNull()
+  expect(sosLocation({ lat: 37.24, lon: 127.08, accuracy_m: -1, captured_at_ms: 0, source: 'fresh', low_confidence: false }))
+    .toEqual({ lat: 37.24, lon: 127.08, accuracy: null })
 })
