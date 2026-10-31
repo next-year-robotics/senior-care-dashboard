@@ -8,6 +8,8 @@ export const firebaseApp = initializeApp({
   databaseURL: import.meta.env.VITE_FB_DATABASE_URL,
   projectId: import.meta.env.VITE_FB_PROJECT_ID,
   appId: import.meta.env.VITE_FB_APP_ID,
+  // 웹 푸시(FCM)에 필요하다. 프로젝트 번호이며 appId("1:<번호>:web:…")에 들어 있다.
+  messagingSenderId: import.meta.env.VITE_FB_MESSAGING_SENDER_ID || String(import.meta.env.VITE_FB_APP_ID ?? '').split(':')[1],
 })
 
 export const auth = getAuth(firebaseApp)

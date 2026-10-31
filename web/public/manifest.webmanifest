@@ -1,0 +1,17 @@
+{
+  "name": "돌봄 로봇 보호자",
+  "short_name": "돌봄 로봇",
+  "description": "어르신 곁 돌봄 로봇의 외출 시작·SOS 알림과 상태를 보는 보호자 화면",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#EEE8DF",
+  "theme_color": "#2C365A",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
